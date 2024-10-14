@@ -1,0 +1,6 @@
+wheel
+fastapi
+uvicorn
+Pillow
+python-multipart
+ultralytics
