@@ -11,7 +11,7 @@ def __detect(contents: bytes, conf: float):
     image = Image.open(io.BytesIO(contents)).convert('RGB')
     
     # Load the YOLO model
-    model = YOLO("source/application/Yolov8/yolov8n.pt").to(device)
+    model = YOLO("application/Yolov8/yolov8n.pt").to(device)
     results = model.predict(image, conf=conf) 
 
     # 確保數據被從 GPU 移動到 CPU

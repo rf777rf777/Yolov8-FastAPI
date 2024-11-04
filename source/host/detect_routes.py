@@ -1,4 +1,4 @@
-import io
+import io, asyncio
 from application.Yolov8.yolov8_service import get_detect_result_img, get_detect_result_info
 from application.Yolov8.Yolov8DetectionResult import Yolov8DetectionResult
 from fastapi.responses import StreamingResponse, JSONResponse
@@ -14,13 +14,17 @@ router = APIRouter(prefix=f'/{settings.ROUTER_NAME_Object_Detection}',
             response_class = StreamingResponse,
             responses = {200: {"content": {"image/png": {}}}})
 async def detect(file: UploadFile = File(..., description="上傳影像檔案")):
-    
+    print(f"收到 {file.filename}")
     # 讀取上傳的影像檔案
     contents = await file.read()
     # image = Image.open(io.BytesIO(contents)).convert('RGB')
     
     # 使用 yolov8 進行推論
-    result_image = get_detect_result_img(contents)
+    #result_image = get_detect_result_img(contents)
+    # 使用 yolov8 進行推論 
+    # 改使用asyncio.to_thread 將同步的函數放到子Thread中執行
+    result_image = await asyncio.to_thread(get_detect_result_img, contents)
+    
     
     # 儲存影像至記憶體(bytes)
     img_byte_arr = io.BytesIO()
@@ -34,10 +38,14 @@ async def detect(file: UploadFile = File(..., description="上傳影像檔案"))
             response_class= JSONResponse,
             response_model=Yolov8DetectionResult)
 async def detect_info(file: UploadFile = File(..., description="上傳影像檔案")):
+    print(f"收到 {file.filename}")
+
     # 讀取上傳的影像檔案
     contents = await file.read()
 
     # 使用 yolov8 進行推論
-    result_info = get_detect_result_info(contents)
+    #result_info = get_detect_result_info(contents)
+    # 改使用asyncio.to_thread 將同步的函數放到子Thread中執行
+    result_info = await asyncio.to_thread(get_detect_result_info, contents)
 
     return result_info
